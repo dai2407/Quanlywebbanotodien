@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quản lý đơn hàng</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+</head>
+<body>
+<header class="bg-dark text-light py-3">
+    <div class="container d-flex justify-content-between align-items-center">
+        <h1 class="mb-0">Quản lý đơn hàng</h1>
+        <a href="/" class="btn btn-outline-light">Quay lại</a>
+    </div>
+</header>
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Danh sách đơn hàng</h2>
+        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addOrderModal">Thêm đơn hàng</button>
+    </div>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th scope="col">ID Đơn hàng</th>
+            <th scope="col">Tên khách hàng</th>
+            <th scope="col">Sản phẩm</th>
+            <th scope="col">Số lượng</th>
+            <th scope="col">Giá</th>
+            <th scope="col">Ngày đặt hàng</th>
+            <th scope="col">Hành động</th>
+        </tr>
+        </thead>
+        <tbody id="orderTableBody">
+        <!-- Order rows will be dynamically added here -->
+        </tbody>
+    </table>
+</div>
+
+<!-- Add Order Modal -->
+<div class="modal fade" id="addOrderModal" tabindex="-1" aria-labelledby="addOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addOrderModalLabel">Thêm đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="addOrderForm">
+                    <div class="mb-3">
+                        <label for="customerName" class="form-label">Tên khách hàng</label>
+                        <input type="text" class="form-control" id="customerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderProduct" class="form-label">Sản phẩm</label>
+                        <input type="text" class="form-control" id="orderProduct" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderQuantity" class="form-label">Số lượng</label>
+                        <input type="number" class="form-control" id="orderQuantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderPrice" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="orderPrice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="orderDate" class="form-label">Ngày đặt hàng</label>
+                        <input type="date" class="form-control" id="orderDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Thêm</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Order Modal -->
+<div class="modal fade" id="editOrderModal" tabindex="-1" aria-labelledby="editOrderModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="editOrderModalLabel">Sửa đơn hàng</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editOrderForm">
+                    <input type="hidden" id="editOrderId">
+                    <div class="mb-3">
+                        <label for="editCustomerName" class="form-label">Tên khách hàng</label>
+                        <input type="text" class="form-control" id="editCustomerName" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editOrderProduct" class="form-label">Sản phẩm</label>
+                        <input type="text" class="form-control" id="editOrderProduct" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editOrderQuantity" class="form-label">Số lượng</label>
+                        <input type="number" class="form-control" id="editOrderQuantity" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editOrderPrice" class="form-label">Giá</label>
+                        <input type="number" class="form-control" id="editOrderPrice" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editOrderDate" class="form-label">Ngày đặt hàng</label>
+                        <input type="date" class="form-control" id="editOrderDate" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Lưu</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-kenU1KFdBIe4zVF0s0G1M5b4hcpxyD9F7jL+jjXkk+Q2h455rYXK/7HAuoJl+0I4" crossorigin="anonymous"></script>
+<script>
+    let orders = [];
+
+    document.getElementById('addOrderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const order = {
+            id: Date.now(),
+            customerName: document.getElementById('customerName').value,
+            product: document.getElementById('orderProduct').value,
+            quantity: document.getElementById('orderQuantity').value,
+            price: document.getElementById('orderPrice').value,
+            date: document.getElementById('orderDate').value
+        };
+        orders.push(order);
+        displayOrders();
+        document.getElementById('addOrderForm').reset();
+        bootstrap.Modal.getInstance(document.getElementById('addOrderModal')).hide();
+    });
+
+    function displayOrders() {
+        const orderTableBody = document.getElementById('orderTableBody');
+        orderTableBody.innerHTML = '';
+        orders.forEach(order => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <th scope="row">${order.id}</th>
+                <td>${order.customerName}</td>
+                <td>${order.product}</td>
+                <td>${order.quantity}</td>
+                <td>${order.price}</td>
+                <td>${order.date}</td>
+                <td>
+                    <button class="btn btn-warning btn-sm" onclick="editOrder(${order.id})">Sửa</button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteOrder(${order.id})">Xóa</button>
+                </td>
+            `;
+            orderTableBody.appendChild(row);
+        });
+    }
+
+    function editOrder(id) {
+        const order = orders.find(o => o.id === id);
+        document.getElementById('editOrderId').value = order.id;
+        document.getElementById('editCustomerName').value = order.customerName;
+        document.getElementById('editOrderProduct').value = order.product;
+        document.getElementById('editOrderQuantity').value = order.quantity;
+        document.getElementById('editOrderPrice').value = order.price;
+        document.getElementById('editOrderDate').value = order.date;
+        bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).show();
+    }
+
+    document.getElementById('editOrderForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const id = document.getElementById('editOrderId').value;
+        const orderIndex = orders.findIndex(o => o.id === parseInt(id));
+        orders[orderIndex].customerName = document.getElementById('editCustomerName').value;
+        orders[orderIndex].product = document.getElementById('editOrderProduct').value;
+        orders[orderIndex].quantity = document.getElementById('editOrderQuantity').value;
+        orders[orderIndex].price = document.getElementById('editOrderPrice').value;
+        orders[orderIndex].date = document.getElementById('editOrderDate').value;
+        displayOrders();
+        bootstrap.Modal.getInstance(document.getElementById('editOrderModal')).hide();
+    });
+
+    function deleteOrder(id) {
+        orders = orders.filter(o => o.id !== id);
+        displayOrders();
+    }
+</script>
+</body>
+</html>
